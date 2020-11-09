@@ -22,6 +22,7 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 	public int program;
 	Context context;
 	private int vba;
+	private boolean useOpenGL20 = false;
 
 	final String vertexName = "vPosition";
 	final String colorName = "color";
@@ -123,23 +124,23 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 		// Set the background frame color
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-		String vertexSource = readRawStringFile(context, R.raw.vertex);
-		String fragmentSource = readRawStringFile(context, R.raw.fragment);
+		String vertexSource = readRawStringFile(context, R.raw.vertex_es_20);
+		String fragmentSource = readRawStringFile(context, R.raw.fragment_es_20);
 
-		float[] geomtry = new float[]{
-				-1.0f, -1.0f, 0.0f,
-				1.0f, 0.0f, 0.0f,
-				-0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				1.0f, -1.0f, 0.0f,
-				0.0f, 0.0f, 1.0f,
+		float[] triangleGeometryData = new float[]{
+				-1.0f, -1.0f, 0.0f, /*  Vertex0 location. */
+				1.0f, 0.0f, 0.0f,   /*  Vertex0 color. */
+				-0.0f, 1.0f, 0.0f,  /*  Vertex1 location. */
+				0.0f, 1.0f, 0.0f,   /*  Vertex1 color. */
+				1.0f, -1.0f, 0.0f,  /*  Vertex2 location. */
+				0.0f, 0.0f, 1.0f,   /*  Vertex2 color. */
 		};
 		program = loadShader(vertexSource, fragmentSource);
 
 		IntBuffer buf = IntBuffer.allocate(1);
 		GLES30.glGenVertexArrays(1, buf);
 		GLES30.glBindVertexArray(buf.get(0));
-		triangle_vbo = createBuffer(geomtry);
+		triangle_vbo = createBuffer(triangleGeometryData);
 		GLES30.glBindVertexArray(0);
 		vba = buf.get(0);
 	}
