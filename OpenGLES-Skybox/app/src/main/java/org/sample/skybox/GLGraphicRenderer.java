@@ -1,4 +1,4 @@
-package org.sample.opengles_triangle;
+package org.sample.skybox;
 
 import android.content.Context;
 import android.opengl.GLES10;
@@ -39,6 +39,14 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 			String log = GLES20.glGetShaderInfoLog(shader);
 			throw new RuntimeException(String.format("Shader compilation error\n%s", log));
 		}
+	}
+
+	private int loadTexture(){
+		return 0;
+	}
+
+	private int loadCubeMapTexture(){
+		return 0;
 	}
 
 	public int loadShader(String vertexSource, String fragmentSource) {
@@ -123,8 +131,8 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 		// Set the background frame color
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-		String vertexSource = readRawStringFile(context, R.raw.vertex);
-		String fragmentSource = readRawStringFile(context, R.raw.fragment);
+		String vertexSource = readRawStringFile(context, R.raw.skyboxV);
+		String fragmentSource = readRawStringFile(context, R.raw.skyboxF_cubemap);
 
 		float[] geomtry = new float[]{
 				-1.0f, -1.0f, 0.0f,

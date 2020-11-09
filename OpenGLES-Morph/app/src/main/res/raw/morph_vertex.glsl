@@ -10,7 +10,6 @@ layout(location = 5) in vec2 TextureCoordinate1;
 layout(location = 6) in vec3 vNormal1;
 layout(location = 7) in vec3 vTangent1;
 
-
 uniform float t[2];
 /*#if defined(GL_ARB_explicit_attrib_location)
 
