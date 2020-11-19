@@ -1,12 +1,12 @@
-layout(location = 0) vec3 vPosition;
-layout(location = 1) vec3 color;
+#version 300 es
+
+layout(location = 0) in vec3 vertex;
+layout(location = 1) in vec3 color;
 precision mediump float;
 
-out block {
-	vec3 vColor;
-} Out;
+out vec3 vColor;
 
 void main(void) {
-	gl_Position = vec4(vPosition, 1.0);
-	Out.vColor = color;
+	gl_Position = vec4(vertex, 1.0);
+	vColor = color;
 }

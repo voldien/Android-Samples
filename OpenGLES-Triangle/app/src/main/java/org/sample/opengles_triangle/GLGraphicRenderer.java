@@ -18,14 +18,13 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLGraphicRenderer implements GLSurfaceView.Renderer {
+	final String vertexName = "vertex";
+	final String colorName = "color";
 	public int triangle_vbo;
 	public int program;
 	Context context;
 	private int vba;
 	private boolean useOpenGL20 = false;
-
-	final String vertexName = "vPosition";
-	final String colorName = "color";
 
 	public GLGraphicRenderer(Context context) {
 		this.context = context;
@@ -124,8 +123,13 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 		// Set the background frame color
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-		String vertexSource = readRawStringFile(context, R.raw.vertex_es_20);
-		String fragmentSource = readRawStringFile(context, R.raw.fragment_es_20);
+		// Load Shader- Using OpenGLES 2.0
+//		String vertexSource = readRawStringFile(context, R.raw.vertex_es_20);
+//		String fragmentSource = readRawStringFile(context, R.raw.fragment_es_20);
+
+		// Load Shader- Using OpenGLES 3.0
+		String vertexSource = readRawStringFile(context, R.raw.vertex_es_30);
+		String fragmentSource = readRawStringFile(context, R.raw.fragment_es_30);
 
 		float[] triangleGeometryData = new float[]{
 				-1.0f, -1.0f, 0.0f, /*  Vertex0 location. */
