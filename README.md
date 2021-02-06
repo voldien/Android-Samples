@@ -5,6 +5,8 @@ This is the source code sample repository for all the android tutorials from [ww
 ## List of all tutorials
 Each of the source code directory for their respective tutorial is their own android studio projects.
 
+* Android Splash Screen: [Tutorial](https://www.codeintrinsic.com/how-to-create-an-android-splash-screen/), [Source code](/SplashScreen)
+
 * Android Start Activity: [Tutorial](https://www.codeintrinsic.com/how-to-start-activity-and-pass-data-with-android/), [Source code](/StartActivity)
 
 * Android ListView:
