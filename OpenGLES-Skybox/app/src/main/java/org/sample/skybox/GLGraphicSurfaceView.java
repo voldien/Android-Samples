@@ -24,7 +24,6 @@ public class GLGraphicSurfaceView extends GLSurfaceView {
 		detectedGLESVersion(context);
 		/*  */
 		renderer = new GLGraphicRenderer(context);
-
 		/* Set the Renderer for drawing on the GLSurfaceView    */
 		setRenderer(renderer);
 	}
@@ -33,7 +32,7 @@ public class GLGraphicSurfaceView extends GLSurfaceView {
 		ActivityManager am =
 				(ActivityManager) context.getSystemService ( Context.ACTIVITY_SERVICE );
 		ConfigurationInfo info = am.getDeviceConfigurationInfo();
-
+		setEGLContextClientVersion(3);
 		/*  Set the OpenGL version */
 		if( info.reqGlEsVersion >= 0x30000) {
 			setEGLContextClientVersion(3);

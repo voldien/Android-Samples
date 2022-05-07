@@ -1,10 +1,13 @@
 package org.sample.skybox;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES10;
 import android.opengl.GLES20;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,13 +21,53 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 public class GLGraphicRenderer implements GLSurfaceView.Renderer {
-	public int triangle_vbo;
-	public int program;
-	Context context;
-	private int vba;
-
+	static final float g_vertex_buffer_data[] = {
+			-1.0f, -1.0f, -1.0f, // triangle 1 : begin
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f, // triangle 1 : end
+			1.0f, 1.0f, -1.0f, // triangle 2 : begin
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f, // triangle 2 : end
+			1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+			1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f
+	};
 	final String vertexName = "vPosition";
 	final String colorName = "color";
+	public int triangle_vbo;
+	public int skybox_texture;
+	public int program;
+	Context context;
+	float[] mvp = new float[16];
+	private int vba;
+	private int uniform_location_mvp;
 
 	public GLGraphicRenderer(Context context) {
 		this.context = context;
@@ -39,14 +82,6 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 			String log = GLES20.glGetShaderInfoLog(shader);
 			throw new RuntimeException(String.format("Shader compilation error\n%s", log));
 		}
-	}
-
-	private int loadTexture(){
-		return 0;
-	}
-
-	private int loadCubeMapTexture(){
-		return 0;
 	}
 
 	public int loadShader(String vertexSource, String fragmentSource) {
@@ -103,6 +138,7 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 		GLES20.glEnableVertexAttribArray(colorLocation);
 		GLES20.glVertexAttribPointer(vertexLocation, 3, GLES20.GL_FLOAT, false, 24, 0);
 		GLES20.glVertexAttribPointer(colorLocation, 3, GLES20.GL_FLOAT, false, 24, 12);
+
 		return buf[0];
 	}
 
@@ -127,56 +163,96 @@ public class GLGraphicRenderer implements GLSurfaceView.Renderer {
 		return buf.toString();
 	}
 
+	public int createCubemapTexture(byte[] data, int width, int height, int internalformat, int format) {
+		GLES20.glGenTextures(1, null);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, 0);
+
+/*		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + 0, 0, internalformat, width, height, 0,
+				format,
+				type, desc->cubepixel[0]);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + 1, 0, internalformat, width, height, 0,
+				format,
+				type, desc->cubepixel[1]);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + 2, 0, internalformat, width, height, 0,
+				format,
+				type, desc->cubepixel[2]);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + 3, 0, internalformat, width, height, 0,
+				format,
+				type, desc->cubepixel[3]);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + 4, 0, internalformat, width, height, 0,
+				format,
+				type, desc->cubepixel[4]);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + 5, 0, internalformat, width, height, 0,
+				format,
+				type, desc->cubepixel[5]);*/
+
+		return 0;
+	}
+
+	public int createTexture(Buffer data, int width, int height, int internalformat, int format) {
+		IntBuffer buf = IntBuffer.allocate(1);
+		GLES20.glGenTextures(1, buf);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, 0);
+
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, internalformat, width, height, 0,
+				format,
+				GLES20.GL_UNSIGNED_BYTE, data);
+		return buf.array()[0];
+	}
+
+	public int[] loadImageFromRawFile(Bitmap bm) {
+		int w = bm.getWidth();
+		int h = bm.getHeight();
+		int[] data = new int[w * h];
+
+		bm.getPixels(data, 0, w, 0, 0, w, h);
+		return data;
+	}
+
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 		// Set the background frame color
 		GLES20.glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
-		String vertexSource = readRawStringFile(context, R.raw.skyboxV);
-		String fragmentSource = readRawStringFile(context, R.raw.skyboxF_cubemap);
+		String vertexSource = readRawStringFile(context, R.raw.skybox);
+		String fragmentSource = readRawStringFile(context, R.raw.skybox_panoramic);
 
-		float[] geomtry = new float[]{
-				-1.0f, -1.0f, 0.0f,
-				1.0f, 0.0f, 0.0f,
-				-0.0f, 1.0f, 0.0f,
-				0.0f, 1.0f, 0.0f,
-				1.0f, -1.0f, 0.0f,
-				0.0f, 0.0f, 1.0f,
-		};
+		Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.skybox_cloud100001);
+		int[] skybox_panoramic = loadImageFromRawFile(bm);
+
+		skybox_texture = createTexture(IntBuffer.wrap(skybox_panoramic), bm.getWidth(), bm.getHeight(), GLES20.GL_RGB, GLES20.GL_RGB);
+
 		program = loadShader(vertexSource, fragmentSource);
+
+		/*	Setup program.	*/
+		GLES20.glUseProgram(this.program);
+		this.uniform_location_mvp = GLES20.glGetUniformLocation(this.program, "MVP");
+		GLES20.glUniform1i(GLES20.glGetUniformLocation(this.program, "panorama"), 0);
+		GLES20.glUseProgram(0);
 
 		IntBuffer buf = IntBuffer.allocate(1);
 		GLES30.glGenVertexArrays(1, buf);
 		GLES30.glBindVertexArray(buf.get(0));
-		triangle_vbo = createBuffer(geomtry);
+		triangle_vbo = createBuffer(g_vertex_buffer_data);
 		GLES30.glBindVertexArray(0);
 		vba = buf.get(0);
 	}
 
-	private void drawOpenGL20() {
-		/*  Draw Triangle.  */
-		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, triangle_vbo);
-		GLES20.glUseProgram(program);
-		int vertexLocation = GLES20.glGetAttribLocation(program, vertexName);
-		int colorLocation = GLES20.glGetAttribLocation(program, colorName);
-		GLES20.glEnableVertexAttribArray(vertexLocation);
-		GLES20.glEnableVertexAttribArray(colorLocation);
-		GLES20.glVertexAttribPointer(vertexLocation, 3, GLES20.GL_FLOAT, false, 24, 0);
-		GLES20.glVertexAttribPointer(colorLocation, 3, GLES20.GL_FLOAT, false, 24, 12);
-		GLES10.glDrawArrays(GLES10.GL_TRIANGLES, 0, 3);
-	}
-
 	private void drawOpenGL30() {
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, this.skybox_texture);
 		GLES20.glUseProgram(program);
+
+		GLES20.glUniformMatrix4fv(this.uniform_location_mvp, 1, false, mvp, 0);
+
 		GLES30.glBindVertexArray(vba);
-		GLES10.glDrawArrays(GLES10.GL_TRIANGLES, 0, 3);
+		GLES10.glDrawArrays(GLES10.GL_TRIANGLES, 0, g_vertex_buffer_data.length / 3);
 	}
 
 	public void onDrawFrame(GL10 unused) {
 		// Redraw background color
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
-		/*  Draw Triangle - Using OpenGLES 2.0  */
-		//drawOpenGL20();
+		Matrix.perspectiveM(mvp,0, 75.0f, 1.333f, 0.5f, 1000.0f);
 
 		/*  Draw Triangle - Using OpenGLES 3.0  */
 		drawOpenGL30();

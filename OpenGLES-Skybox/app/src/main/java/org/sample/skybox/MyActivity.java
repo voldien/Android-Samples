@@ -12,5 +12,6 @@ public class MyActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		GLGraphicSurfaceView surfaceView = new GLGraphicSurfaceView(this);
 		setContentView(surfaceView);
+		//TODO compute
 	}
 }

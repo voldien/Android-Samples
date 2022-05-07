@@ -1,28 +1,24 @@
 package org.sample.listview;
 
 import android.database.DataSetObserver;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
+import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
+import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import java.util.List;
 
-public class ListViewAdapter implements ListAdapter {
+public class ListViewAdapter extends BaseAdapter {
 	List<String> items;
 	public ListViewAdapter(List<String> items) {
 		this.items = items;
 	}
 
-	@Override
-	public void registerDataSetObserver(DataSetObserver observer) {
-
-	}
-
-	@Override
-	public void unregisterDataSetObserver(DataSetObserver observer) {
-
-	}
 
 	@Override
 	public int getCount() {
@@ -31,7 +27,7 @@ public class ListViewAdapter implements ListAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return items.get(position);
 	}
 
 	@Override
@@ -40,37 +36,14 @@ public class ListViewAdapter implements ListAdapter {
 	}
 
 	@Override
-	public boolean hasStableIds() {
-		return false;
-	}
-
-	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		return View.inflate(convertView.getContext(), R.layout.item_text_view, parent);
-	}
+		if (convertView == null) {
+			LayoutInflater inflater = (LayoutInflater.from(parent.getContext()));
+			convertView = inflater.inflate(R.layout.item_text_view, parent, false);
+		}
 
-	@Override
-	public int getItemViewType(int position) {
-		return 0;
-	}
-
-	@Override
-	public int getViewTypeCount() {
-		return 0;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return false;
-	}
-
-	@Override
-	public boolean areAllItemsEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean isEnabled(int position) {
-		return false;
+		((TextView) convertView.findViewById(R.id.textview_item))
+				.setText((CharSequence) getItem(position));
+		return convertView;
 	}
 }
